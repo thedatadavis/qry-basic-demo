@@ -1,0 +1,20 @@
+name: qry_basic_demo
+version: '1.0.0'
+config-version: 2
+
+profile: qry_basic_demo
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  qry_basic_demo:
+    +materialized: table

@@ -1,0 +1,6 @@
+qry_basic_demo:
+  outputs:
+    dev:
+      type: duckdb
+      path: ./adventureworks.duckdb
+  target: dev
