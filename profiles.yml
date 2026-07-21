@@ -3,4 +3,15 @@ qry_basic_demo:
     dev:
       type: duckdb
       path: ./adventureworks.duckdb
-  target: dev
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: QRY_DBT_BUILDER
+      warehouse: QRY_CERT_WH
+      database: QRY_CERT
+      schema: DBT
+      threads: 4
+      client_session_keep_alive: false
+  target: prod

@@ -1,0 +1,73 @@
+name: Publish Qry endpoint
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - "dbt_project.yml"
+      - "profiles.yml"
+      - "models/**"
+      - "seeds/**"
+      - ".github/workflows/publish-qry.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      DBT_PROFILES_DIR: .
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      QRY_API_URL: https://api.qry.thedatadavis.com
+      QRY_DEPLOY_TOKEN: ${{ secrets.QRY_DEPLOY_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dbt and Qry
+        run: pip install dbt-snowflake get-qry
+
+      - name: Build and test dbt models in Snowflake
+        run: dbt build --profiles-dir . --target prod
+
+      - name: Check Qry publication credentials
+        run: >-
+          qry auth check
+          --workspace btst-dev
+          --project qry-basic-demo
+          --environment production
+
+      - name: Validate Qry endpoint declarations
+        run: >-
+          qry dbt validate
+          --manifest target/manifest.json
+          --run-results target/run_results.json
+          --profiles-dir .
+          --dbt-target prod
+          --workspace btst-dev
+          --project qry-basic-demo
+          --environment production
+          --invocation-id "${{ github.run_id }}"
+          --git-sha "${{ github.sha }}"
+
+      - name: Publish the Qry endpoint
+        run: >-
+          qry dbt publish
+          --manifest target/manifest.json
+          --run-results target/run_results.json
+          --profiles-dir .
+          --dbt-target prod
+          --workspace btst-dev
+          --project qry-basic-demo
+          --environment production
+          --invocation-id "${{ github.run_id }}"
+          --git-sha "${{ github.sha }}"
