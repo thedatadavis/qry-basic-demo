@@ -1,0 +1,65 @@
+version: 2
+
+seeds:
+  - name: frames
+    description: Frame guidance addressable by dbt resource id or physical warehouse relation.
+    columns:
+      - name: catalog_id
+        description: Deterministic identifier for this catalog row.
+        data_tests:
+          - not_null
+          - unique
+      - name: frame_id
+        description: Stable project-wide Frame identifier.
+        data_tests:
+          - not_null
+      - name: title
+        description: Human-readable Frame title.
+      - name: summary
+        description: Single-line summary of the guidance.
+      - name: domain
+        description: Optional business domain.
+      - name: owner
+        description: Optional Frame owner.
+      - name: is_global
+        description: True when the Frame has no resource bindings.
+      - name: tasks_json
+        description: Sorted task identifiers encoded as JSON.
+      - name: tags_json
+        description: Sorted Frame tags encoded as JSON.
+      - name: meta_json
+        description: Custom JSON-compatible metadata.
+      - name: body_markdown
+        description: Complete Markdown guidance body.
+      - name: source_path
+        description: Project-relative path to the Frame source.
+      - name: content_hash
+        description: SHA-256 of the normalized Frame document.
+      - name: reference_expression
+        description: Authored dbt-style reference expression.
+      - name: resource_unique_id
+        description: Resolved dbt manifest unique_id.
+      - name: resource_type
+        description: dbt resource type.
+      - name: package_name
+        description: dbt package defining the resource.
+      - name: resource_name
+        description: Resolved resource name.
+      - name: source_name
+        description: dbt source name for source bindings.
+      - name: column_name
+        description: Bound column, empty for whole-resource bindings.
+      - name: database_name
+        description: Resolved database name.
+      - name: schema_name
+        description: Resolved schema name.
+      - name: relation_name
+        description: Physical relation identifier from dbt alias or source identifier.
+      - name: resource_description
+        description: dbt resource description.
+      - name: column_description
+        description: dbt column description for column bindings.
+      - name: resource_path
+        description: dbt project-relative resource path.
+      - name: resource_tags_json
+        description: Sorted dbt resource tags encoded as JSON.

@@ -2,7 +2,7 @@ qry_basic_demo:
   outputs:
     dev:
       type: duckdb
-      path: ./adventureworks.duckdb
+      path: ./olist.duckdb
     prod:
       type: snowflake
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
@@ -14,4 +14,5 @@ qry_basic_demo:
       schema: DBT
       threads: 4
       client_session_keep_alive: false
+      query_tag: qry-basic-demo
   target: prod

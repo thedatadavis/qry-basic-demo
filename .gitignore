@@ -1,0 +1,40 @@
+# Demo scripts
+record_demo.py
+run_demo.sh
+
+# Environment & Virtualenvs
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# dbt build artifacts and logs
+target/
+dbt_packages/
+dbt_modules/
+logs/
+
+# Local databases
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment / Secret files
+.env
+.env.*
+!.env.example
+
+# OS & IDE files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+.idea/
+.vscode/

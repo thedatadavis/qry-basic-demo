@@ -1,0 +1,48 @@
+name: Load Frames seed into demo Snowflake
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: load-frames-seed-demo-snowflake
+  cancel-in-progress: false
+
+jobs:
+  load:
+    name: Load and test Frames seed
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DBT_PROFILES_DIR: .
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dbt Snowflake adapter
+        run: python -m pip install dbt-snowflake
+
+      - name: Load Frames seed
+        run: >-
+          dbt seed
+          --profiles-dir .
+          --target prod
+          --select frames
+          --full-refresh
+
+      - name: Test Frames seed
+        run: >-
+          dbt test
+          --profiles-dir .
+          --target prod
+          --select frames

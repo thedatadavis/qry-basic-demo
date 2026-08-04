@@ -1,0 +1,5 @@
+version: 1
+frame_paths: [frames]
+manifest_path: target/manifest.json
+output:
+  seeds_path: seeds/frames

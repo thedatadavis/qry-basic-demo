@@ -1,20 +1,179 @@
 version: 2
-
 models:
-  - name: users_model
-    description: Demo users published from Snowflake through Qry.
+  - name: customer_activity_stream
+    description: Activity Schema-style customer event stream used to derive operational snapshots.
+    columns:
+      - name: customer_unique_id
+        tests: [not_null]
+      - name: activity_name
+        tests:
+          - accepted_values:
+              arguments:
+                values: [placed_order, approved_order, shipped_order, delivered_order, reviewed_order]
+      - name: activity_at
+        tests: [not_null]
+  - name: customer_snapshot
     config:
       meta:
         qry:
-          endpoint: users
-          path: /users
-          description: Look up demo users for the Build Week walkthrough.
+          endpoint: cdb-customer-snapshot
+          path: /benchmarks/customer-snapshot
+          description: CDB customer context lookup and operational work lists.
           parameters:
-            user_id:
-              column: user_id
+            customer_unique_id:
+              column: customer_unique_id
+              type: string
+              required: false
+            requires_attention:
+              column: requires_attention
+              type: boolean
+              required: false
+            customer_state:
+              column: customer_state
+              type: string
+              required: false
+            minimum_lifetime_revenue:
+              column: lifetime_revenue
+              operator: ">="
+              type: number
+              required: false
+            minimum_lifetime_orders:
+              column: lifetime_orders
+              operator: ">="
               type: integer
               required: false
-          max_materialized_rows: 1000
+            maximum_days_since_last_order:
+              column: days_since_last_order
+              operator: "<="
+              type: integer
+              required: false
+          max_materialized_rows: 150000
           max_response_rows: 100
-          timeout_seconds: 15
-          rate_limit_per_min: 100
+          rate_limit_per_min: 1000
+    columns:
+      - name: customer_unique_id
+        tests: [not_null, unique]
+  - name: order_snapshot
+    config:
+      meta:
+        qry:
+          endpoint: cdb-order-snapshot
+          path: /benchmarks/order-snapshot
+          description: CDB order context lookup and operational work lists.
+          parameters:
+            order_id:
+              column: order_id
+              type: string
+              required: false
+            customer_unique_id:
+              column: customer_unique_id
+              type: string
+              required: false
+            customer_state:
+              column: customer_state
+              type: string
+              required: false
+            requires_attention:
+              column: requires_attention
+              type: boolean
+              required: false
+          max_materialized_rows: 110000
+          max_response_rows: 100
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+  - name: seller_snapshot
+    config:
+      meta:
+        qry:
+          endpoint: cdb-seller-snapshot
+          path: /benchmarks/seller-snapshot
+          description: CDB seller context lookup and operational work lists.
+          parameters:
+            seller_id:
+              column: seller_id
+              type: string
+              required: false
+            requires_attention:
+              column: requires_attention
+              type: boolean
+              required: false
+          max_materialized_rows: 5000
+          max_response_rows: 100
+    columns:
+      - name: seller_id
+        tests: [not_null, unique]
+  - name: product_snapshot
+    config:
+      meta:
+        qry:
+          endpoint: cdb-product-snapshot
+          path: /benchmarks/product-snapshot
+          description: CDB product context lookup and operational work lists.
+          parameters:
+            product_id:
+              column: product_id
+              type: string
+              required: false
+            product_category_name:
+              column: product_category_name
+              type: string
+              required: false
+          max_materialized_rows: 40000
+          max_response_rows: 100
+    columns:
+      - name: product_id
+        tests: [not_null, unique]
+  - name: customer_order_relationship
+    config:
+      meta:
+        qry:
+          endpoint: cdb-customer-orders
+          path: /benchmarks/customer-orders
+          description: CDB pre-modeled customer and order cross-reference.
+          parameters:
+            customer_unique_id:
+              column: customer_unique_id
+              type: string
+              required: false
+            order_id:
+              column: order_id
+              type: string
+              required: false
+            requires_attention:
+              column: requires_attention
+              type: boolean
+              required: false
+          max_materialized_rows: 110000
+          max_response_rows: 100
+      tags: [qry_endpoint]
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+  - name: seller_customer_relationship
+    config:
+      meta:
+        qry:
+          endpoint: cdb-seller-customers
+          path: /benchmarks/seller-customers
+          description: CDB pre-modeled seller and customer cross-reference.
+          parameters:
+            seller_id:
+              column: seller_id
+              type: string
+              required: false
+            customer_unique_id:
+              column: customer_unique_id
+              type: string
+              required: false
+            customer_state:
+              column: customer_state
+              type: string
+              required: false
+          max_materialized_rows: 150000
+          max_response_rows: 100
+    columns:
+      - name: seller_id
+        tests: [not_null]
+      - name: customer_unique_id
+        tests: [not_null]

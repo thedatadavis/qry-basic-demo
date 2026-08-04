@@ -1,0 +1,27 @@
+catalog_id,frame_id,title,summary,domain,owner,is_global,tasks_json,tags_json,meta_json,body_markdown,source_path,content_hash,reference_expression,resource_unique_id,resource_type,package_name,resource_name,source_name,column_name,database_name,schema_name,relation_name,resource_description,column_description,resource_path,resource_tags_json
+c_fb6f611031490decbdbd8082,demo-data-policy,Demo data usage,Project-wide guidance for using the synthetic users in this Qry demo.,demo,analytics-engineering,true,"[""demo"",""product-walkthrough""]","[""qry"",""synthetic-data""]","{""data_classification"":""synthetic""}","# Demo data usage
+
+All people and email addresses in this project are synthetic examples. Use them to demonstrate dbt publishing, endpoint lookup, and response shape only.
+
+Do not treat this three-row dataset as evidence about real users, adoption, behavior, or business performance.
+",frames/project-policy.frame.md,42d96a98cbcc240f05e907fc11a971b402ac2010be74f23d44510c382cb6792d,,,,,,,,,,,,,,
+c_a487c87261f2dc8d08f02c52,user-data-quality,Interpreting the demo user records,Defines the identity fields and data-quality limits shared by the seeded and staged user data.,user-data,analytics-engineering,false,"[""data-quality-review"",""user-lookup""]","[""data-quality"",""identity"",""users""]","{""grain"":""one row per demo user""}","# Interpreting the demo user records
+
+`user_id` is the stable identifier for joining or filtering these records. Names and email addresses are display attributes and should not be used as durable identifiers.
+
+The seed contains three fixed synthetic users. `stg_users` passes the four seed columns through without cleansing, deduplication, or validation, so its presence does not imply that email addresses are verified or unique.
+",frames/user-data-quality.frame.md,571de410cf6e5b888915480bfc54b3e8d92ea7ef1e570f1f3a0a6a1c420569e6,{{ ref('stg_users') }},model.qry_basic_demo.stg_users,model,qry_basic_demo,stg_users,,,adventureworks,main,stg_users,,,models/stg_users.sql,[]
+c_481c74419677f81009dafd15,user-data-quality,Interpreting the demo user records,Defines the identity fields and data-quality limits shared by the seeded and staged user data.,user-data,analytics-engineering,false,"[""data-quality-review"",""user-lookup""]","[""data-quality"",""identity"",""users""]","{""grain"":""one row per demo user""}","# Interpreting the demo user records
+
+`user_id` is the stable identifier for joining or filtering these records. Names and email addresses are display attributes and should not be used as durable identifiers.
+
+The seed contains three fixed synthetic users. `stg_users` passes the four seed columns through without cleansing, deduplication, or validation, so its presence does not imply that email addresses are verified or unique.
+",frames/user-data-quality.frame.md,571de410cf6e5b888915480bfc54b3e8d92ea7ef1e570f1f3a0a6a1c420569e6,{{ ref('users') }},seed.qry_basic_demo.users,seed,qry_basic_demo,users,,,adventureworks,main,users,,,seeds/users.csv,[]
+c_4535be9a06a2dea3bc727277,users-endpoint,Using the published users endpoint,Explains the shape and intended use of the user data product published through Qry.,user-data,analytics-engineering,false,"[""endpoint-demo"",""user-lookup""]","[""api"",""qry"",""users""]","{""qry_endpoint"":""/users""}","# Using the published users endpoint
+
+`users_model` is the curated relation published through Qry at `/users`. It returns one row per demo user with `user_id`, `full_name`, and `email`.
+
+Use the optional `user_id` parameter for a deterministic lookup. Without that parameter, the endpoint may return the full three-row demo dataset subject to the configured response limit.
+
+This model combines first and last name into `full_name`; it does not add behavioral, account, or activity data. A successful lookup confirms only that the synthetic record exists in the demo dataset.
+",frames/users-endpoint.frame.md,0a483049a700a1565686ab8476122ade1e2d24d9b5d7ab50f8929e8388c7123b,{{ ref('users_model') }},model.qry_basic_demo.users_model,model,qry_basic_demo,users_model,,,adventureworks,main,users_model,Demo users published from Snowflake through Qry.,,models/users_model.sql,[]
